@@ -2,7 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Task;
+use App\Models\User;
 use Illuminate\Console\Command;
+use App\Notifications\UserCountNotified;
 
 class CompletedTasksCount extends Command
 {
@@ -25,6 +28,17 @@ class CompletedTasksCount extends Command
      */
     public function handle()
     {
-        //
+        $users = User::all();
+
+        foreach($users as $user)
+        {
+            $count = count(Task::where('completed',true)->where('user_id',$user->id)->get());
+
+            if($count > 0)
+            {
+                $user->notify(new UserCountNotified($user,$count));
+            }
+
+        }
     }
 }
